@@ -4,8 +4,11 @@ import { useEffect } from "react";
 import { useUser } from "@clerk/clerk-react";
 import useAuthStore from "@/store/useUserStore";
 
-export default function AuthProvider({ children }) {
+import { ReactNode } from "react";
+
+export default function AuthProvider({ children }: { children: ReactNode }) {
   const { isLoaded, user } = useUser();
+  //@ts-ignore
   const registerUser = useAuthStore((state) => state.registerUser);
 
   useEffect(() => {

@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import pdf from "pdf-parse";
-// import { dbConnect } from "@/lib/db";
+
+// or "gemini-2.5-flash" depending on availability
+
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
-    // Expecting multipart/form-data with a PDF file
     const formData = await req.formData();
     const file = formData.get("resume") as File | null;
-
+    
     if (!file) {
-      return NextResponse.json({ error: "Resume file is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Resume file is required" },
+        { status: 400 }
+      );
     }
-
-    // Convert file to Buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
-
-    // Extract text from PDF
-    const pdfData = await pdf(buffer);
-    const resumeText = pdfData.text;
-
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    // Convert PDF to Uint8Array (Gemini accepts binary input)
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+    // const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `
       You are an AI that extracts structured information from resumes.
@@ -41,19 +41,32 @@ export async function POST(req: NextRequest) {
           "portfolio": string | null
         }
       }
-
-      Resume:
-      ${resumeText}
     `;
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    // Send both prompt + file content
+    const result = await model.generateContent([
+      { text: prompt },
+      {
+        inlineData: {
+          data: Buffer.from(bytes).toString("base64"),
+          mimeType: "application/pdf",
+        },
+      },
+    ]);
+    // console.log("result:", result)
 
+    let text = result.response.text();
+    // console.log("test:",text)
+
+    text = text.replace(/```json|```/g, "").trim();
     let parsedJson;
     try {
       parsedJson = JSON.parse(text);
     } catch {
-      return NextResponse.json({ error: "Failed to parse AI response", raw: text }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to parse AI response", raw: text },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(parsedJson);

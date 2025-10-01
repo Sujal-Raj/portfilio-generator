@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function HomePage(){
 
     return (
@@ -25,9 +27,11 @@ export default function HomePage(){
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href={"/create-portolio"}>
             <button className="bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg text-base font-semibold hover:bg-gray-800 dark:hover:bg-gray-200 transition shadow-lg">
               Create Your Portfolio →
             </button>
+            </Link>
             <button className="bg-white dark:bg-gray-900 text-black dark:text-white px-8 py-3 rounded-lg text-base font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition border-2 border-gray-200 dark:border-gray-800">
               View Examples →
             </button>
