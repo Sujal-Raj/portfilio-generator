@@ -39,7 +39,7 @@ A Next.js application that parses resumes (PDFs) using Google Gemini AI to extra
 
 3. **Set up environment variables:**
 
-   Create a `.env.local` file in the root directory:
+   Create a `.env.local` file in the root directory (required):
 
    ```
    GEMINI_API_KEY=your_google_gemini_api_key
@@ -79,6 +79,15 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
   }
   ```
 - **Response:** Registration status message
+
+## API Testing
+
+A ready-to-use Postman collection is provided in [postman_collection.json](postman_collection.json).  
+Import this file into Postman to quickly test the available endpoints.
+
+- **Parse Resume:** Upload a PDF file as `resume` in form-data.
+- **Register User:** Send a JSON body with an `email` field.
+
 
 ## Project Structure
 
