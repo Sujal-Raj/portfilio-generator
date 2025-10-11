@@ -32,7 +32,7 @@ export default function HomePage(){
               Create Your Portfolio →
             </button>
             </Link>
-            <button className="bg-white dark:bg-gray-900 text-black dark:text-white px-8 py-3 rounded-lg text-base font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition border-2 border-gray-200 dark:border-gray-800">
+            <button className="bg-white dark:bg-gray-900 text-black dark:text-white px-8  py-3 rounded-lg text-base font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition border-2 border-gray-200 dark:border-gray-800">
               View Examples →
             </button>
           </div>

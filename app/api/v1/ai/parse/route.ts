@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
+import UserModel from "@/models/user.model";
+import PortfolioModel from "@/models/portfolio.model";
+import { dbConnect } from "@/lib/db";
 // or "gemini-2.5-flash" depending on availability
 
 
@@ -8,8 +10,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
+    await dbConnect();
+
+
     const formData = await req.formData();
     const file = formData.get("resume") as File | null;
+    const currentUser = formData.get("currentUser") as string | null;
     
     if (!file) {
       return NextResponse.json(
@@ -69,7 +75,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(parsedJson);
+    const user = await UserModel.findOne({ email: currentUser });
+
+    if (!user) {
+      return NextResponse.json({
+        message: "User Not found"
+      }, {
+        status: 404
+      });
+    }
+
+    const portfolio = new PortfolioModel({
+      userEmail: currentUser,
+      ...parsedJson,
+    });
+
+    await portfolio.save();
+
+    user.portfolio = portfolio._id;
+    await user.save();
+    
+
+    return NextResponse.json({
+      message: "Portfolio saved successfully",
+      portfolio,
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
