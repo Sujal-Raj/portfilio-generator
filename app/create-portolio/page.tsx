@@ -81,35 +81,77 @@ export default function CreatePortfolioPage() {
     }
   };
 
+  // const handleParseResume = async () => {
+  //   if (!file) return;
+
+  //   setIsLoading(true);
+  //   setError(null);
+
+  //   try {
+  //     const formDataToSend = new FormData();
+  //     formDataToSend.append("resume", file);
+  //     if(currentUser) {formDataToSend.append("currentUser", currentUser)};
+
+  //     const response = await fetch("/api/v1/ai/parse", {
+  //       method: "POST",
+  //       body: formDataToSend,
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Failed to parse resume");
+  //     }
+
+  //     const data = await response.json();
+  //     console.log(data);
+  //     setFormData(data.portfolio);
+  //     console.log(formData)
+  //     setShowForm(true);
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : "An error occurred");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleParseResume = async () => {
-    if (!file) return;
+  if (!file) return;
 
-    setIsLoading(true);
-    setError(null);
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("resume", file);
-      if(currentUser) {formDataToSend.append("currentUser", currentUser)};
-
-      const response = await fetch("/api/v1/ai/parse", {
-        method: "POST",
-        body: formDataToSend,
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to parse resume");
-      }
-
-      const data = await response.json();
-      setFormData(data);
-      setShowForm(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
+  try {
+    const formDataToSend = new FormData();
+    formDataToSend.append("resume", file);
+    if (currentUser) {
+      formDataToSend.append("currentUser", currentUser);
     }
-  };
+
+    const response = await fetch("/api/v1/ai/parse", {
+      method: "POST",
+      body: formDataToSend,
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to parse resume");
+    }
+
+    const data = await response.json();
+    console.log("API response:", data);
+
+    if (data.portfolio) {
+      // Spread the portfolio object to ensure new reference for React state update
+      setFormData({ ...data.portfolio });
+      setShowForm(true);
+    } else {
+      setError("No portfolio data found in the response");
+    }
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "An error occurred");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const handleManualEntry = () => {
     setSelectedOption("manual");
