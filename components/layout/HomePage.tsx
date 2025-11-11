@@ -38,10 +38,14 @@ export default function HomePage(){
           
           <div className="flex flex-row gap-4 justify-center">
             <Link href={"/create-portolio"}>
-            <button className="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-lg text-base font-semibold hover:bg-gray-800 dark:hover:bg-gray-200 transition shadow-lg flex items-center justify-center  cursor-pointer">
-              Create Your Portfolio <MoveRight className="ml-1 size-3 transition-transform duration-300 ease-in-out group-hover:translate-x-0.5" />
-            </button>
-            </Link>
+  <button className="group relative bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer flex items-center justify-center">
+    <span className="relative z-10 flex items-center">
+      Create Your Portfolio 
+      <MoveRight className="ml-2 size-4 transition-transform duration-300 ease-in-out group-hover:translate-x-1" />
+    </span>
+    <div className="absolute inset-0 bg-gray-800 dark:bg-gray-200 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
+  </button>
+</Link>
             {/* <button className="bg-white dark:bg-gray-900 text-black dark:text-white px-8  py-3 rounded-lg text-base font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition border-2 border-gray-200 dark:border-gray-800">
               View Examples →
             </button> */}

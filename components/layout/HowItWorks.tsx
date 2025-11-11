@@ -39,18 +39,8 @@ export default function HowItWorksPage(){
       </div>
     </section>
 
-    <section>
-          <div className={`relative w-full py-4 sm:py-6 md:py-8 lg:py-10 overflow-hidden bg-white dark:bg-black`}>
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-white/50 to-transparent dark:from-black dark:via-black/50 dark:to-transparent z-10 pointer-events-none" />
-      
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[6rem] xl:text-[8rem] 2xl:text-[10rem] text-center tracking-tighter text-gray-900 dark:text-gray-100 opacity-5 dark:opacity-10 select-none pointer-events-none whitespace-nowrap font-semibold">
-        PORTFOLIO
-      </h2>
-    </div>
-    </section>
 
-    <section className="py-20 bg-gray-50 dark:bg-gray-950">
+    {/* <section className="py-20 bg-white dark:bg-black">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-black dark:text-white mb-1">
           Ready to Create Your Portfolio?
@@ -62,7 +52,7 @@ export default function HowItWorksPage(){
           Get Started
         </button>
       </div>
-    </section>
+    </section> */}
 
     </>
   );
