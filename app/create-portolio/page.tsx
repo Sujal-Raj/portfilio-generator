@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Upload, FileText, Sparkles, Trash2 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 
 interface ParsedData {
   name: string;
@@ -37,6 +40,7 @@ interface ParsedData {
 
 export default function CreatePortfolioPage() {
   const { user } = useUser();
+  // console.log(user)
   const currentUser = user?.primaryEmailAddress?.emailAddress;
   console.log(currentUser);
 
@@ -301,11 +305,26 @@ export default function CreatePortfolioPage() {
 
   // ================== Submit / Reset ==================
 
+  const router = useRouter();
   const handleCreatePortfolio = async () => {
     console.log("Creating portfolio with data:", formData);
+
     // Here you’d POST to your /api/portfolio endpoint with:
     // { ...formData, userEmail: currentUser, slug: ... }
     alert("Portfolio creation logic to be implemented!");
+
+    const res = await fetch("/api/v1/user", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: currentUser }),
+  });
+
+  const data = await res.json();
+  console.log(data.user.slug);
+  const slug = data.user.slug;
+
+  
+    router.push(`/${slug}`)
   };
 
   const handleStartOver = () => {
@@ -682,12 +701,14 @@ export default function CreatePortfolioPage() {
               >
                 Start Over
               </button>
+              {/* <Link href={`/${slug}`}> */}
               <button
                 onClick={handleCreatePortfolio}
                 className="flex-1 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-gray-200 transition"
-              >
+                >
                 Create Portfolio
               </button>
+                {/* </Link> */}
             </div>
           </div>
         </div>
