@@ -47,7 +47,7 @@ export default function HomePage(){
     />
           
           <div className="flex flex-row gap-4 justify-center">
-            <Link href={"/create-portolio"}>
+            <Link href={"/create/portfolio"}>
   <button className="group relative bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer flex items-center justify-center">
     <span className="relative z-10 flex items-center">
       Create Your Portfolio 

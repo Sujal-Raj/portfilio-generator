@@ -37,7 +37,7 @@ export default function Footer() {
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
             Join thousands of creators who trust our platform to showcase their best work.
           </p>
-          <Link href={"/create-portolio"}>
+          <Link href={"/create/portfolio"}>
           <button className="group relative bg-black dark:bg-white text-white dark:text-black px-8 py-3 rounded-lg text-lg font-semibold hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer">
             <span className="relative z-10">Get Started</span>
             <div className="absolute inset-0 bg-gray-800 dark:bg-gray-200 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />

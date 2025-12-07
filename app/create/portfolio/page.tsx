@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Upload, FileText, Sparkles, Trash2 } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
+import { useToast } from "@/components/ui/ToastContext";
 
 interface ParsedData {
   name: string;
@@ -41,7 +41,8 @@ interface ParsedData {
 export default function CreatePortfolioPage() {
   const { user } = useUser();
   // console.log(user)
-  const currentUser = user?.primaryEmailAddress?.emailAddress;
+  // const currentUser = user?.primaryEmailAddress?.emailAddress;
+  const currentUser = "bhumi.sahayata10@gmail.com";
   console.log(currentUser);
 
   const [file, setFile] = useState<File | null>(null);
@@ -49,7 +50,12 @@ export default function CreatePortfolioPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedOption, setSelectedOption] = useState<"upload" | "manual" | null>(null);
+  const [selectedOption, setSelectedOption] = useState<
+    "upload" | "manual" | null
+  >(null);
+    const router = useRouter();
+    const { showToast } = useToast();
+
 
   const [formData, setFormData] = useState<ParsedData>({
     name: "",
@@ -67,6 +73,78 @@ export default function CreatePortfolioPage() {
       twitter: null,
     },
   });
+
+  // useEffect(() => {
+  //   const fetchPortfolio = async () => {
+  //     const res = await fetch("/api/v1/user", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ email: currentUser }),
+  //     });
+  //     // console.log(res);
+  //     const data = await res.json();
+  //     console.log(data.user);
+  //     if(data.user){
+  //        sessionStorage.setItem("portfolioData", JSON.stringify(data.user));
+  //           showToast("Loading your existing portfolio...");
+  //           router.push("/preview-portfolio");
+  //     }
+  //       //       setFormData({ ...data.user });
+  //       //       showToast("You have already a parsed data from resume")
+  //       // setShowForm(true);
+  //       setSelectedOption("upload");
+  //   };
+
+  //   // fetchPortfolio();
+  //    if (currentUser) fetchPortfolio()
+
+
+  // }, [currentUser]);
+
+
+  useEffect(() => {
+  let isMounted = true;
+
+  const fetchPortfolio = async () => {
+    if (!currentUser) return;
+    
+    try {
+      console.log("Fetching for:", currentUser); // Debug
+      const res = await fetch("/api/v1/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: currentUser }),
+      });
+
+      if (!res.ok) {
+        console.error("API Error:", res.status); // Check Network tab
+        return;
+      }
+
+      const data = await res.json();
+      console.log("Full response:", data); // Debug
+
+      if (data.user && isMounted) {
+        sessionStorage.setItem("portfolioData", JSON.stringify(data.user));
+        showToast("Loading your existing portfolio...");
+        
+        // Test with known route first
+        setTimeout(() => {
+          if (isMounted) {
+            // router.push("/"); // ← Test this works first
+            router.push("/preview/portfolio"); // Then uncomment
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error("Fetch failed:", error);
+    }
+  };
+
+  fetchPortfolio();
+
+  return () => { isMounted = false; };
+}, [currentUser]);
 
   // ================== Drag & Drop ==================
 
@@ -104,45 +182,45 @@ export default function CreatePortfolioPage() {
 
   // ================== AI Parse Resume ==================
 
-  const handleParseResume = async () => {
-    if (!file) return;
+  // const handleParseResume = async () => {
+  //   if (!file) return;
 
-    setIsLoading(true);
-    setError(null);
+  //   setIsLoading(true);
+  //   setError(null);
 
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append("resume", file);
-      if (currentUser) {
-        formDataToSend.append("currentUser", currentUser);
-      }
+  //   try {
+  //     const formDataToSend = new FormData();
+  //     formDataToSend.append("resume", file);
+  //     if (currentUser) {
+  //       formDataToSend.append("currentUser", currentUser);
+  //     }
 
-      const response = await fetch("/api/v1/ai/parse", {
-        method: "POST",
-        body: formDataToSend,
-      });
+  //     const response = await fetch("/api/v1/ai/parse", {
+  //       method: "POST",
+  //       body: formDataToSend,
+  //     });
 
-      if (!response.ok) {
-        throw new Error("Failed to parse resume");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Failed to parse resume");
+  //     }
 
-      const data = await response.json();
-      console.log("API response:", data);
+  //     const data = await response.json();
+  //     console.log("API response:", data);
 
-      if (data.portfolio) {
-        // data.portfolio must match ParsedData shape
-        setFormData({ ...data.portfolio });
-        setShowForm(true);
-        setSelectedOption("upload");
-      } else {
-        setError("No portfolio data found in the response");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     if (data.portfolio) {
+  //       // data.portfolio must match ParsedData shape
+  //       setFormData({ ...data.portfolio });
+  //       setShowForm(true);
+  //       setSelectedOption("upload");
+  //     } else {
+  //       setError("No portfolio data found in the response");
+  //     }
+  //   } catch (err) {
+  //     setError(err instanceof Error ? err.message : "An error occurred");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleManualEntry = () => {
     setSelectedOption("manual");
@@ -217,10 +295,7 @@ export default function CreatePortfolioPage() {
   const handleAddEducation = () => {
     setFormData((prev) => ({
       ...prev,
-      education: [
-        ...prev.education,
-        { degree: "", school: "", year: "" },
-      ],
+      education: [...prev.education, { degree: "", school: "", year: "" }],
     }));
   };
 
@@ -305,7 +380,7 @@ export default function CreatePortfolioPage() {
 
   // ================== Submit / Reset ==================
 
-  const router = useRouter();
+
   const handleCreatePortfolio = async () => {
     console.log("Creating portfolio with data:", formData);
 
@@ -314,17 +389,17 @@ export default function CreatePortfolioPage() {
     alert("Portfolio creation logic to be implemented!");
 
     const res = await fetch("/api/v1/user", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: currentUser }),
-  });
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: currentUser }),
+    });
 
-  const data = await res.json();
-  console.log(data.user.slug);
-  const slug = data.user.slug;
+    const data = await res.json();
+    // console.log(data)
+    console.log(data.user.slug);
+    const slug = data.user.slug;
 
-  
-    router.push(`/${slug}`)
+    router.push(`/${slug}`);
   };
 
   const handleStartOver = () => {
@@ -420,7 +495,9 @@ export default function CreatePortfolioPage() {
                   <input
                     type="text"
                     value={formData.status}
-                    onChange={(e) => handleInputChange("status", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("status", e.target.value)
+                    }
                     placeholder="Open to opportunities"
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition"
                   />
@@ -496,7 +573,11 @@ export default function CreatePortfolioPage() {
                         type="text"
                         value={exp.company}
                         onChange={(e) =>
-                          handleExperienceChange(index, "company", e.target.value)
+                          handleExperienceChange(
+                            index,
+                            "company",
+                            e.target.value
+                          )
                         }
                         placeholder="Company"
                         className="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm"
@@ -506,7 +587,11 @@ export default function CreatePortfolioPage() {
                       type="text"
                       value={exp.duration}
                       onChange={(e) =>
-                        handleExperienceChange(index, "duration", e.target.value)
+                        handleExperienceChange(
+                          index,
+                          "duration",
+                          e.target.value
+                        )
                       }
                       placeholder="Duration (e.g., 2022 - Present)"
                       className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-sm"
@@ -514,7 +599,11 @@ export default function CreatePortfolioPage() {
                     <textarea
                       value={exp.description}
                       onChange={(e) =>
-                        handleExperienceChange(index, "description", e.target.value)
+                        handleExperienceChange(
+                          index,
+                          "description",
+                          e.target.value
+                        )
                       }
                       placeholder="Description of your responsibilities and achievements"
                       rows={3}
@@ -619,7 +708,11 @@ export default function CreatePortfolioPage() {
                     <textarea
                       value={project.description}
                       onChange={(e) =>
-                        handleProjectChange(index, "description", e.target.value)
+                        handleProjectChange(
+                          index,
+                          "description",
+                          e.target.value
+                        )
                       }
                       placeholder="Project description"
                       rows={3}
@@ -672,21 +765,27 @@ export default function CreatePortfolioPage() {
                     type="url"
                     placeholder="GitHub URL"
                     value={formData.socialLinks.github || ""}
-                    onChange={(e) => handleSocialLinkChange("github", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialLinkChange("github", e.target.value)
+                    }
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition"
                   />
                   <input
                     type="url"
                     placeholder="LinkedIn URL"
                     value={formData.socialLinks.linkedin || ""}
-                    onChange={(e) => handleSocialLinkChange("linkedin", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialLinkChange("linkedin", e.target.value)
+                    }
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition"
                   />
                   <input
                     type="url"
                     placeholder="Twitter URL"
                     value={formData.socialLinks.twitter || ""}
-                    onChange={(e) => handleSocialLinkChange("twitter", e.target.value)}
+                    onChange={(e) =>
+                      handleSocialLinkChange("twitter", e.target.value)
+                    }
                     className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition"
                   />
                 </div>
@@ -705,10 +804,10 @@ export default function CreatePortfolioPage() {
               <button
                 onClick={handleCreatePortfolio}
                 className="flex-1 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-gray-200 transition"
-                >
+              >
                 Create Portfolio
               </button>
-                {/* </Link> */}
+              {/* </Link> */}
             </div>
           </div>
         </div>
@@ -733,10 +832,10 @@ export default function CreatePortfolioPage() {
         <div className="grid md:grid-cols-1 gap-6 lg:gap-8 w-[95%] md:w-[70%] mx-auto">
           {/* Upload Resume Option */}
           <div className="border-2 border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10 hover:border-gray-300 dark:hover:border-gray-700 transition">
-            <div className="flex items-center justify-center w-16 h-16 bg-black dark:bg-white rounded-2xl mb-6 mx-auto">
+            <div className="flex items-center justify-center w-16 h-16 bg-black dark:bg-white rounded-2xl mb-2 mx-auto">
               <Sparkles className="w-8 h-8 text-white dark:text-black" />
             </div>
-            <h2 className="text-2xl font-bold text-black dark:text-white mb-3 text-center">
+            <h2 className="text-2xl font-bold text-black dark:text-white mb-1 text-center">
               Upload Resume
             </h2>
             <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
@@ -780,7 +879,7 @@ export default function CreatePortfolioPage() {
 
             {file && (
               <button
-                onClick={handleParseResume}
+                // onClick={handleParseResume}
                 disabled={isLoading}
                 className="w-full mt-6 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -802,8 +901,15 @@ export default function CreatePortfolioPage() {
             <div className="flex-1 h-px bg-gray-700"></div>
           </div>
 
+          <button
+          onClick={()=>{
+            setShowForm(true);
+          }} className="w-[90%] mx-auto mt-0 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
+            Don't have a resume. Start entering manually
+          </button>
+
           {/* Manual Entry Form (preview) */}
-          <div className="border-2 border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10">
+          {/* <div className="border-2 border-gray-200 dark:border-gray-800 rounded-3xl p-8 lg:p-10">
             <div className="flex items-center justify-center w-16 h-16 bg-black dark:bg-white rounded-2xl mb-6 mx-auto">
               <FileText className="w-8 h-8 text-white dark:text-black" />
             </div>
@@ -812,11 +918,11 @@ export default function CreatePortfolioPage() {
             </h2>
             <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
               Enter your information step by step
-            </p>
+            </p> */}
 
-            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+            {/* <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar"> */}
               {/* Name */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-black dark:text-white mb-2">
                   Full Name
                 </label>
@@ -827,10 +933,10 @@ export default function CreatePortfolioPage() {
                   placeholder="John Doe"
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition text-sm"
                 />
-              </div>
+              </div> */}
 
               {/* Title */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-black dark:text-white mb-2">
                   Professional Title
                 </label>
@@ -841,10 +947,10 @@ export default function CreatePortfolioPage() {
                   placeholder="Full Stack Developer"
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition text-sm"
                 />
-              </div>
+              </div> */}
 
               {/* Email */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-black dark:text-white mb-2">
                   Email
                 </label>
@@ -855,10 +961,10 @@ export default function CreatePortfolioPage() {
                   placeholder="you@example.com"
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition text-sm"
                 />
-              </div>
+              </div> */}
 
               {/* About */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-black dark:text-white mb-2">
                   About
                 </label>
@@ -869,10 +975,10 @@ export default function CreatePortfolioPage() {
                   placeholder="Brief description..."
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition resize-none text-sm"
                 />
-              </div>
+              </div> */}
 
               {/* Skills (preview, first 2) */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-black dark:text-white mb-2">
                   Skills
                 </label>
@@ -894,10 +1000,10 @@ export default function CreatePortfolioPage() {
                     + Add skill
                   </button>
                 )}
-              </div>
+              </div> */}
 
               {/* Social Links Preview */}
-              <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-black dark:text-white mb-2">
                   Social Links
                 </label>
@@ -905,14 +1011,18 @@ export default function CreatePortfolioPage() {
                   type="url"
                   placeholder="GitHub URL"
                   value={formData.socialLinks.github || ""}
-                  onChange={(e) => handleSocialLinkChange("github", e.target.value)}
+                  onChange={(e) =>
+                    handleSocialLinkChange("github", e.target.value)
+                  }
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition mb-2 text-sm"
                 />
                 <input
                   type="url"
                   placeholder="LinkedIn URL"
                   value={formData.socialLinks.linkedin || ""}
-                  onChange={(e) => handleSocialLinkChange("linkedin", e.target.value)}
+                  onChange={(e) =>
+                    handleSocialLinkChange("linkedin", e.target.value)
+                  }
                   className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition text-sm"
                 />
               </div>
@@ -925,13 +1035,14 @@ export default function CreatePortfolioPage() {
               Continue to Full Form
             </button>
           </div>
-        </div>
+        </div> */}
 
-        <div className="mt-8 text-center">
+        <div className="mt-1 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-500">
             Both options let you review and edit before creating your portfolio
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

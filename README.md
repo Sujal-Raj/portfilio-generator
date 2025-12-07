@@ -104,7 +104,7 @@ app/
       auth/
         register/
           route.ts      # User registration endpoint
-  create-portolio/
+  /create/portfolio
     page.tsx            # Portfolio creation UI
   layout.tsx            # App layout
   page.tsx              # Home page
