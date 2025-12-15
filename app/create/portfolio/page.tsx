@@ -106,6 +106,7 @@ export default function CreatePortfolioPage() {
   let isMounted = true;
 
   const fetchPortfolio = async () => {
+    console.log("Fetching portfolio");
     if (!currentUser) return;
     
     try {
@@ -145,6 +146,96 @@ export default function CreatePortfolioPage() {
 
   return () => { isMounted = false; };
 }, [currentUser]);
+
+
+const defaultPortfolioData = {
+  // ---- owner / routing ----
+  userEmail: currentUser ?? "Johndoe@gmail.com",
+  slug: "john-doe",
+
+  // ---- basic info ----
+  name: "John Doe",
+  title: "Full Stack Developer",
+  email: "john.doe@example.com",
+  about:
+    "I am a passionate full stack developer with experience in building scalable web applications using modern technologies. I enjoy solving real-world problems and continuously learning new tools.",
+  status: "Open to opportunities",
+
+  // ---- skills ----
+  skills: [
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Next.js",
+    "Node.js",
+    "MongoDB",
+    "Express",
+    "Tailwind CSS",
+  ],
+
+  // ---- experience ----
+  experience: [
+    {
+      role: "Software Engineer",
+      company: "Tech Solutions Inc.",
+      duration: "Jan 2022 - Present",
+      description:
+        "Developed and maintained full-stack web applications using React, Node.js, and MongoDB. Collaborated with cross-functional teams to deliver high-quality products.",
+    },
+    {
+      role: "Frontend Developer",
+      company: "Startup Labs",
+      duration: "Jun 2020 - Dec 2021",
+      description:
+        "Built responsive UI components using React and Tailwind CSS. Improved application performance and accessibility.",
+    },
+  ],
+
+  // ---- projects ----
+  projects: [
+    {
+      title: "Portfolio Builder",
+      description:
+        "A dynamic portfolio builder that allows users to create and customize their personal portfolios.",
+      tech: ["Next.js", "TypeScript", "MongoDB", "Tailwind CSS"],
+      link: "https://portfolio-builder.example.com",
+    },
+    {
+      title: "Task Management App",
+      description:
+        "A task management application with authentication, real-time updates, and team collaboration features.",
+      tech: ["React", "Node.js", "Express", "MongoDB"],
+      link: "https://task-manager.example.com",
+    },
+  ],
+
+  // ---- education ----
+  education: [
+    {
+      degree: "Bachelor of Technology in Computer Science",
+      school: "ABC University",
+      year: "2016 - 2020",
+    },
+  ],
+
+  // ---- social links ----
+  socialLinks: {
+    github: "https://github.com/johndoe",
+    linkedin: "https://linkedin.com/in/johndoe",
+    twitter: "https://twitter.com/johndoe",
+  },
+};
+
+
+const handleManualPreview = () => {
+  sessionStorage.setItem(
+    "portfolioData",
+    JSON.stringify(defaultPortfolioData)
+  );
+
+  router.push("/preview/portfolio");
+};
+
 
   // ================== Drag & Drop ==================
 
@@ -903,9 +994,7 @@ export default function CreatePortfolioPage() {
           </div>
 
           <button
-          onClick={()=>{
-            setShowForm(true);
-          }} className="w-[90%] mx-auto mt-0 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
+          onClick={handleManualPreview} className="w-[90%] mx-auto mt-0 bg-black dark:bg-white text-white dark:text-black py-4 rounded-xl font-semibold hover:bg-gray-800 dark:hover:bg-gray-200 transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
             Don&apos;t have a resume. Start entering manually
           </button>
 

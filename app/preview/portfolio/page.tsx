@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Monitor, Smartphone, Sun, Moon, Save,MoveLeft,Eye } from "lucide-react";
+import {
+  Monitor,
+  Smartphone,
+  Sun,
+  Moon,
+  Save,
+  MoveLeft,
+  Eye,
+} from "lucide-react";
 import PortfolioPreview from "@/components/portfolio/PortfolioPreview/page";
 import EditForm from "@/components/portfolio/EditForm/page";
 import Link from "next/link";
@@ -56,45 +64,42 @@ export default function PreviewPortfolioPage() {
   useEffect(() => {
     // Get data from sessionStorage
     const storedData = sessionStorage.getItem("portfolioData");
-     const parsed = JSON.parse(storedData!);
-      setSlug(parsed.slug);
-      console.log(parsed.slug)
+    const parsed = JSON.parse(storedData!);
+    setSlug(parsed.slug);
+    console.log(parsed.slug);
     // console.log(storedData?.slug)
     if (storedData) {
       setFormData(JSON.parse(storedData));
       // console.log(formData)
     } else {
       // If no data, redirect back
-      router.push("/create");
+      router.push("/create/portfolio");
     }
   }, [router]);
 
-  const handleSave = async () => {
+  const handlePublish = async () => {
     if (!formData) return;
-    
+
     setIsSaving(true);
     try {
-      // Check if this is an update (has _id) or new portfolio
-      const isUpdate = formData._id;
-      
-      const response = await fetch("/api/v1/portfolio", {
-        method: isUpdate ? "PUT" : "POST",
+      const res = await fetch("/api/v1/user/portfolio/publish", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        // Redirect to the user's portfolio page
-        router.push(`/${data.slug || formData.slug}`);
-      } else {
-        const error = await response.json();
-        console.error("Error saving portfolio:", error);
-        alert("Failed to save portfolio. Please try again.");
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message || "Something went wrong");
+        return;
       }
+
+      // Redirect after success
+      router.push(`/${data.slug}`);
     } catch (error) {
-      console.error("Error saving portfolio:", error);
-      alert("Failed to save portfolio. Please try again.");
+      console.error(error);
+      alert("Failed to publish portfolio");
     } finally {
       setIsSaving(false);
     }
@@ -108,10 +113,10 @@ export default function PreviewPortfolioPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800">
         <div className="px-6 py-4 flex items-center justify-between">
           <button
-            onClick={() => router.push("/create/portfilio")}
+            onClick={() => router.push("/create/portfolio")}
             className="text-sm text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
           >
-            <MoveLeft/>
+            <MoveLeft />
             {/* ← Back */}
           </button>
 
@@ -141,11 +146,11 @@ export default function PreviewPortfolioPage() {
               <span className="text-sm font-medium">Mobile</span>
             </button> */}
             {/* Preview badge - positioned above the card */}
-        <div className="inline-flex items-center gap-1.5 bg-black/95 backdrop-blur-sm text-white text-xs px-4 py-1.5 rounded-full shadow-xl border border-gray-800/50 ml-40">
-          <Eye size={14} />
-          <span>Preview mode</span>
-        </div>
-      </div>
+            <div className="inline-flex items-center gap-1.5 bg-black/95 backdrop-blur-sm text-white text-xs px-4 py-1.5 rounded-full shadow-xl border border-gray-800/50 ml-40">
+              <Eye size={14} />
+              <span>Preview mode</span>
+            </div>
+          </div>
 
           <div className="flex items-center gap-3">
             {/* Theme Toggle */}
@@ -155,30 +160,44 @@ export default function PreviewPortfolioPage() {
               title="Toggle theme"
             >
               {theme === "light" ? (
-                <Moon size={18} className="text-gray-400 group-hover:text-white transition-colors" />
+                <Moon
+                  size={18}
+                  className="text-gray-400 group-hover:text-white transition-colors"
+                />
               ) : (
-                <Sun size={18} className="text-gray-400 group-hover:text-white transition-colors" />
+                <Sun
+                  size={18}
+                  className="text-gray-400 group-hover:text-white transition-colors"
+                />
               )}
             </button>
 
             {/* Save Button */}
-            <Link href={`/${slug}`}>
+            {/* <Link href={`/${slug}`}>
+              <button
+                // onClick={handleSave}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition-all duration-200 disabled:opacity-50 cursor-pointer"
+              >
+                <Save size={16} />
+                {isSaving ? "Publishing..." : "Publish Portfolio"}
+              </button>
+            </Link> */}
+
             <button
-              // onClick={handleSave}
+              onClick={handlePublish}
               disabled={isSaving}
               className="flex items-center gap-2 px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition-all duration-200 disabled:opacity-50 cursor-pointer"
-              >
+            >
               <Save size={16} />
               {isSaving ? "Publishing..." : "Publish Portfolio"}
             </button>
-              </Link>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
       <div className="pt-18 flex">
-
         {/* Right Side - Edit Form */}
         <div className="h-[calc(100vh-80px)] bg-white dark:bg-black border-l border-gray-200 dark:border-gray-800">
           <EditForm formData={formData} setFormData={setFormData} />
@@ -194,36 +213,36 @@ export default function PreviewPortfolioPage() {
           >
             <div
               className={`${
-                viewMode === "mobile" ? "h-[667px] overflow-y-auto custom-scrollbar" : ""
+                viewMode === "mobile"
+                  ? "h-[667px] overflow-y-auto custom-scrollbar"
+                  : ""
               }`}
             >
               <PortfolioPreview portfolio={formData} theme={theme} />
             </div>
           </div>
         </div>
-
-        
       </div>
 
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: rgba(156, 163, 175, 0.3);
           border-radius: 3px;
           transition: background 0.2s;
         }
-        
+
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(156, 163, 175, 0.5);
         }
-        
+
         .custom-scrollbar {
           scrollbar-width: thin;
           scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
