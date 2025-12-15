@@ -75,7 +75,7 @@ export default function PortfolioPreview({
     <main
       className={`min-h-screen ${
         isDark ? "bg-black text-white" : "bg-white text-gray-900"
-      } transition-colors duration-300 border rounded-2xl p-2`}
+      } transition-colors duration-300 border rounded-xl sm:rounded-2xl p-2`}
     >
       {/* Header */}
       <header
@@ -85,11 +85,11 @@ export default function PortfolioPreview({
           isDark ? "border-gray-900" : "border-gray-100"
         }`}
       >
-        <nav className="max-w-6xl mx-auto px-6 lg:px-8 py-5 flex justify-between items-center">
-          <div className="font-bold text-lg tracking-tight">
+        <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+          <div className="font-bold text-base sm:text-lg tracking-tight">
             {portfolio.name}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             {portfolio.socialLinks.github && (
               <a
                 href={portfolio.socialLinks.github}
@@ -112,11 +112,11 @@ export default function PortfolioPreview({
             )}
             <a
               href={`mailto:${portfolio.email}`}
-              className={`ml-2 px-5 py-2 ${
+              className={`ml-2 px-4 sm:px-5 py-2 ${
                 isDark
                   ? "bg-white text-black"
                   : "bg-gray-900 text-white"
-              } rounded-lg text-sm font-medium hover:opacity-90 transition-all`}
+              } rounded-lg text-xs sm:text-sm font-medium hover:opacity-90 transition-all`}
             >
               Contact
             </a>
@@ -124,15 +124,15 @@ export default function PortfolioPreview({
         </nav>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 lg:px-8 pt-32 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 lg:pt-32 pb-12 sm:pb-20">
         {/* Hero */}
-        <section className="pt-16 pb-32">
+        <section className="pt-8 sm:pt-16 pb-16 sm:pb-24 lg:pb-32">
           <div
             className={`inline-flex items-center gap-2 px-3 py-1.5 ${
               isDark
                 ? "bg-gray-900 border-gray-800"
                 : "bg-gray-50 border-gray-200"
-            } rounded-full mb-8 border`}
+            } rounded-full mb-6 sm:mb-8 border`}
           >
             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 animate-pulse" />
             <span className="text-xs font-medium">
@@ -140,22 +140,22 @@ export default function PortfolioPreview({
             </span>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl font-bold mb-2">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2">
             {portfolio.name}
           </h1>
-          <h2 className="text-2xl sm:text-3xl font-semibold mb-6 text-gray-500">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-4 sm:mb-6 text-gray-500">
             {portfolio.title}
           </h2>
 
-          <p className="max-w-2xl mb-6 text-gray-500">{portfolio.about}</p>
+          <p className="max-w-2xl mb-4 sm:mb-6 text-sm sm:text-base text-gray-500">{portfolio.about}</p>
 
           <a
             href={`mailto:${portfolio.email}`}
-            className={`inline-flex items-center gap-2 px-6 py-3 ${
+            className={`inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 ${
               isDark
                 ? "bg-white text-black"
                 : "bg-gray-900 text-white"
-            } rounded-lg font-medium`}
+            } rounded-lg font-medium text-sm sm:text-base`}
           >
             <Mail className="w-4 h-4" />
             Get in Touch
@@ -165,32 +165,33 @@ export default function PortfolioPreview({
 
         {/* Experience */}
         {portfolio.experience.length > 0 && (
-          <section className="mb-32">
-            <h2 className="text-3xl font-bold mb-12 flex items-center gap-3">
-              <Briefcase /> Experience
+          <section className="mb-16 sm:mb-24 lg:mb-32">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12 flex items-center gap-2 sm:gap-3">
+              <Briefcase className="w-6 h-6 sm:w-7 sm:h-7" /> 
+              <span>Experience</span>
             </h2>
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {portfolio.experience.map(
                 (exp: Experience, i: number) => (
                   <div
                     key={i}
-                    className="p-8 border rounded-xl"
+                    className="p-5 sm:p-6 lg:p-8 border rounded-xl"
                   >
-                    <div className="flex justify-between mb-4">
+                    <div className="flex flex-col sm:flex-row sm:justify-between mb-3 sm:mb-4 gap-2">
                       <div>
-                        <h3 className="text-xl font-semibold">
+                        <h3 className="text-lg sm:text-xl font-semibold">
                           {exp.role}
                         </h3>
-                        <p className="text-gray-500">
+                        <p className="text-sm sm:text-base text-gray-500">
                           {exp.company}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Calendar className="w-4 h-4" />
+                      <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                         {exp.duration}
                       </div>
                     </div>
-                    <p className="text-gray-500">
+                    <p className="text-sm sm:text-base text-gray-500">
                       {exp.description}
                     </p>
                   </div>
@@ -202,34 +203,35 @@ export default function PortfolioPreview({
 
         {/* Projects */}
         {portfolio.projects.length > 0 && (
-          <section className="mb-32">
-            <h2 className="text-3xl font-bold mb-12 flex items-center gap-3">
-              <Code2 /> Projects
+          <section className="mb-16 sm:mb-24 lg:mb-32">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12 flex items-center gap-2 sm:gap-3">
+              <Code2 className="w-6 h-6 sm:w-7 sm:h-7" /> 
+              <span>Projects</span>
             </h2>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
               {portfolio.projects.map(
                 (proj: Project, i: number) => (
                   <div
                     key={i}
-                    className="p-8 border rounded-xl cursor-pointer"
+                    className="p-5 sm:p-6 lg:p-8 border rounded-xl cursor-pointer hover:border-gray-400 dark:hover:border-gray-600 transition-all"
                     onClick={() =>
                       proj.link && window.open(proj.link, "_blank")
                     }
                   >
-                    <div className="flex justify-between mb-4">
-                      <h3 className="text-xl font-semibold">
+                    <div className="flex justify-between mb-3 sm:mb-4">
+                      <h3 className="text-lg sm:text-xl font-semibold">
                         {proj.title}
                       </h3>
-                      {proj.link && <ExternalLink />}
+                      {proj.link && <ExternalLink className="w-5 h-5 flex-shrink-0" />}
                     </div>
-                    <p className="mb-4 text-gray-500">
+                    <p className="mb-3 sm:mb-4 text-sm sm:text-base text-gray-500">
                       {proj.description}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {proj.tech.map((tech: string, j: number) => (
                         <span
                           key={j}
-                          className="px-3 py-1 text-xs border rounded"
+                          className="px-2 sm:px-3 py-1 text-xs border rounded"
                         >
                           {tech}
                         </span>
@@ -244,21 +246,22 @@ export default function PortfolioPreview({
 
         {/* Education */}
         {portfolio.education.length > 0 && (
-          <section className="mb-32">
-            <h2 className="text-3xl font-bold mb-12 flex items-center gap-3">
-              <GraduationCap /> Education
+          <section className="mb-16 sm:mb-24 lg:mb-32">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12 flex items-center gap-2 sm:gap-3">
+              <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7" /> 
+              <span>Education</span>
             </h2>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
               {portfolio.education.map(
                 (edu: Education, i: number) => (
-                  <div key={i} className="p-8 border rounded-xl">
-                    <h3 className="font-semibold">
+                  <div key={i} className="p-5 sm:p-6 lg:p-8 border rounded-xl">
+                    <h3 className="text-base sm:text-lg font-semibold">
                       {edu.degree}
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-sm sm:text-base text-gray-500">
                       {edu.school}
                     </p>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-xs sm:text-sm text-gray-400">
                       {edu.year}
                     </p>
                   </div>
@@ -270,16 +273,17 @@ export default function PortfolioPreview({
 
         {/* Skills */}
         {portfolio.skills.length > 0 && (
-          <section className="mb-32">
-            <h2 className="text-3xl font-bold mb-12 flex items-center gap-3">
-              <Award /> Skills
+          <section className="mb-16 sm:mb-24 lg:mb-32">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-12 flex items-center gap-2 sm:gap-3">
+              <Award className="w-6 h-6 sm:w-7 sm:h-7" /> 
+              <span>Skills</span>
             </h2>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               {portfolio.skills.map(
                 (skill: string, i: number) => (
                   <span
                     key={i}
-                    className="px-4 py-2 border rounded-lg"
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg text-sm sm:text-base"
                   >
                     {skill}
                   </span>

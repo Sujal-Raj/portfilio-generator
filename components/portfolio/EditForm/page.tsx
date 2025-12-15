@@ -11,7 +11,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
-import { Portfolio } from "@/app/(web)/preview/portfolio/page"; // adjust path if needed
+import { Portfolio } from "@/app/(web)/preview/portfolio/page";
 
 interface EditFormProps {
   formData: Portfolio;
@@ -530,14 +530,14 @@ export default function EditForm({ formData, setFormData }: EditFormProps) {
 
   return (
     <div className="flex h-full relative border-r-2 border-gray-700">
-      {/* Sidebar - Fixed width 80px */}
-      <div className="w-20 flex-shrink-0 bg-white dark:bg-black border-r border-gray-200 dark:border-gray-800 flex flex-col items-center py-6 gap-2">
+      {/* Sidebar - Responsive width */}
+      <div className="w-16 sm:w-20 flex-shrink-0 bg-white dark:bg-black border-r border-gray-200 dark:border-gray-800 flex flex-col items-center py-4 sm:py-6 gap-2">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-3 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-xl transition-all duration-200 mb-2"
+          className="p-2 sm:p-3 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-xl transition-all duration-200 mb-2"
           title={isCollapsed ? "Show editor" : "Hide editor"}
         >
-          {isCollapsed ? <ChevronLeft size={20} className="text-gray-600 dark:text-gray-400" /> : <ChevronRight size={20} className="text-gray-600 dark:text-gray-400" />}
+          {isCollapsed ? <ChevronLeft size={18} className="sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" /> : <ChevronRight size={18} className="sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />}
         </button>
         
         {sections.map((section) => {
@@ -546,58 +546,43 @@ export default function EditForm({ formData, setFormData }: EditFormProps) {
           
           return (
             <button
-  key={section.key}
-  onClick={() => setActiveSection(section.key)}
-  className="group"
-  title={section.label}
->
-  <div className="relative">     {/* <-- IMPORTANT */}
-    <div
-      className={`p-3 rounded-xl transition-all duration-300 ${
-        isActive
-          ? "bg-black dark:bg-white text-white dark:text-black scale-110"
-          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 hover:scale-105"
-      }`}
-    >
-      <Icon size={20} />
-    </div>
-
-    {/* Tooltip */}
-    {/* <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2
-      px-3 py-1.5 bg-black dark:bg-white text-white dark:text-black
-      text-sm font-medium rounded-lg opacity-0 group-hover:opacity-100 
-      pointer-events-none transition-opacity duration-200 whitespace-nowrap z-50"
-    > 
-      {section.label} */}
-
-      {/* Arrow */}
-      {/* <div className="absolute right-full top-1/2 -translate-y-1/2 
-        border-4 border-transparent border-r-black dark:border-r-white"
-      ></div> */}
-    {/* </div> */}
-  </div>
-</button>
-
+              key={section.key}
+              onClick={() => setActiveSection(section.key)}
+              className="group"
+              title={section.label}
+            >
+              <div className="relative">
+                <div
+                  className={`p-2 sm:p-3 rounded-xl transition-all duration-300 ${
+                    isActive
+                      ? "bg-black dark:bg-white text-white dark:text-black scale-110"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 hover:scale-105"
+                  }`}
+                >
+                  <Icon size={18} className="sm:w-5 sm:h-5" />
+                </div>
+              </div>
+            </button>
           );
         })}
       </div>
 
-      {/* Main Content - Fixed width 400px, smooth slide in/out */}
+      {/* Main Content - Responsive width with smooth transitions */}
       <div 
         className={`flex flex-col bg-white dark:bg-black transition-all duration-500 ease-in-out overflow-hidden ${
-          isCollapsed ? 'w-0 opacity-0' : 'w-[400px] opacity-100'
+          isCollapsed ? 'w-0 opacity-0' : 'w-full sm:w-[350px] lg:w-[400px] opacity-100'
         }`}
       >
         {/* Header */}
-        <div className="flex-shrink-0 px-6 py-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-black dark:text-white truncate">
+        <div className="flex-shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+          <h2 className="text-lg sm:text-xl font-bold text-black dark:text-white truncate">
             {sections.find(s => s.key === activeSection)?.label}
           </h2>
         </div>
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {renderContent()}
           </div>
         </div>
