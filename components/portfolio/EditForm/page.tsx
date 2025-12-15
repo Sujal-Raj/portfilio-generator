@@ -1,188 +1,252 @@
-import { Trash2, Plus, User, Wrench, Briefcase, Code2, GraduationCap, Link2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  User,
+  Wrench,
+  Briefcase,
+  Code2,
+  GraduationCap,
+  Link2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useState } from "react";
-
-interface ParsedData {
-  _id?: string;
-  userEmail?: string;
-  slug?: string;
-  name: string;
-  title: string;
-  email: string;
-  about: string;
-  status: string | null;
-  skills: string[];
-  experience: {
-    role: string;
-    company: string;
-    duration: string;
-    description: string;
-  }[];
-  education: {
-    degree: string;
-    school: string;
-    year: string;
-  }[];
-  projects: {
-    title: string;
-    description: string;
-    tech: string[];
-    link?: string | null;
-  }[];
-  socialLinks: {
-    github?: string | null;
-    linkedin?: string | null;
-    twitter?: string | null;
-  };
-  createdAt?: string;
-  updatedAt?: string;
-  __v?: number;
-}
+import { Portfolio } from "@/app/(web)/preview/portfolio/page"; // adjust path if needed
 
 interface EditFormProps {
-  formData: ParsedData;
-  setFormData: React.Dispatch<React.SetStateAction<ParsedData | null>>;
+  formData: Portfolio;
+  setFormData: React.Dispatch<React.SetStateAction<Portfolio | null>>;
 }
 
-type SectionKey = "basic" | "skills" | "experience" | "projects" | "education" | "social";
+type SectionKey =
+  | "basic"
+  | "skills"
+  | "experience"
+  | "projects"
+  | "education"
+  | "social";
 
 export default function EditForm({ formData, setFormData }: EditFormProps) {
   const [activeSection, setActiveSection] = useState<SectionKey>("basic");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const sections = [
-    { key: "basic" as SectionKey, icon: User, label: "Basic Info", count: undefined },
-    { key: "skills" as SectionKey, icon: Wrench, label: "Skills", count: formData.skills.length },
-    { key: "experience" as SectionKey, icon: Briefcase, label: "Experience", count: formData.experience.length },
-    { key: "projects" as SectionKey, icon: Code2, label: "Projects", count: formData.projects.length },
-    { key: "education" as SectionKey, icon: GraduationCap, label: "Education", count: formData.education.length },
-    { key: "social" as SectionKey, icon: Link2, label: "Social", count: undefined },
-  ];
+    { key: "basic", icon: User, label: "Basic Info" },
+    { key: "skills", icon: Wrench, label: "Skills", count: formData.skills.length },
+    { key: "experience", icon: Briefcase, label: "Experience", count: formData.experience.length },
+    { key: "projects", icon: Code2, label: "Projects", count: formData.projects.length },
+    { key: "education", icon: GraduationCap, label: "Education", count: formData.education.length },
+    { key: "social", icon: Link2, label: "Social" },
+  ] as const;
 
-  const handleInputChange = (field: keyof ParsedData, value: any) => {
+  /* -------------------- Generic -------------------- */
+
+  const handleInputChange = <K extends keyof Portfolio>(
+    field: K,
+    value: Portfolio[K]
+  ) => {
     setFormData((prev) => (prev ? { ...prev, [field]: value } : prev));
   };
 
-  // Skills handlers
+  /* -------------------- Skills -------------------- */
+
   const handleSkillChange = (index: number, value: string) => {
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const skills = [...prev.skills];
-      skills[index] = value;
-      return { ...prev, skills };
-    });
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            skills: prev.skills.map((s, i) => (i === index ? value : s)),
+          }
+        : prev
+    );
   };
 
   const handleAddSkill = () => {
-    setFormData((prev) => prev ? { ...prev, skills: [...prev.skills, ""] } : prev);
+    setFormData((prev) =>
+      prev ? { ...prev, skills: [...prev.skills, ""] } : prev
+    );
   };
 
   const handleRemoveSkill = (index: number) => {
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const skills = [...prev.skills];
-      skills.splice(index, 1);
-      return { ...prev, skills };
-    });
-  };
-
-  // Experience handlers
-  const handleAddExperience = () => {
     setFormData((prev) =>
-      prev ? {
-        ...prev,
-        experience: [...prev.experience, { role: "", company: "", duration: "", description: "" }],
-      } : prev
+      prev
+        ? { ...prev, skills: prev.skills.filter((_, i) => i !== index) }
+        : prev
     );
   };
 
-  const handleExperienceChange = (index: number, field: keyof ParsedData["experience"][number], value: string) => {
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const experience = [...prev.experience];
-      experience[index] = { ...experience[index], [field]: value };
-      return { ...prev, experience };
-    });
+  /* -------------------- Experience -------------------- */
+
+  const handleAddExperience = () => {
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            experience: [
+              ...prev.experience,
+              { role: "", company: "", duration: "", description: "" },
+            ],
+          }
+        : prev
+    );
+  };
+
+  const handleExperienceChange = (
+    index: number,
+    field: keyof Portfolio["experience"][number],
+    value: string
+  ) => {
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            experience: prev.experience.map((e, i) =>
+              i === index ? { ...e, [field]: value } : e
+            ),
+          }
+        : prev
+    );
   };
 
   const handleRemoveExperience = (index: number) => {
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const experience = [...prev.experience];
-      experience.splice(index, 1);
-      return { ...prev, experience };
-    });
-  };
-
-  // Education handlers
-  const handleAddEducation = () => {
     setFormData((prev) =>
-      prev ? { ...prev, education: [...prev.education, { degree: "", school: "", year: "" }] } : prev
+      prev
+        ? {
+            ...prev,
+            experience: prev.experience.filter((_, i) => i !== index),
+          }
+        : prev
     );
   };
 
-  const handleEducationChange = (index: number, field: keyof ParsedData["education"][number], value: string) => {
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const education = [...prev.education];
-      education[index] = { ...education[index], [field]: value };
-      return { ...prev, education };
-    });
+  /* -------------------- Education -------------------- */
+
+  const handleAddEducation = () => {
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            education: [
+              ...prev.education,
+              { degree: "", school: "", year: "" },
+            ],
+          }
+        : prev
+    );
+  };
+
+  const handleEducationChange = (
+    index: number,
+    field: keyof Portfolio["education"][number],
+    value: string
+  ) => {
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            education: prev.education.map((e, i) =>
+              i === index ? { ...e, [field]: value } : e
+            ),
+          }
+        : prev
+    );
   };
 
   const handleRemoveEducation = (index: number) => {
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const education = [...prev.education];
-      education.splice(index, 1);
-      return { ...prev, education };
-    });
-  };
-
-  // Projects handlers
-  const handleAddProject = () => {
     setFormData((prev) =>
-      prev ? {
-        ...prev,
-        projects: [...prev.projects, { title: "", description: "", tech: [], link: "" }],
-      } : prev
+      prev
+        ? {
+            ...prev,
+            education: prev.education.filter((_, i) => i !== index),
+          }
+        : prev
     );
   };
 
-  const handleProjectChange = (index: number, field: keyof ParsedData["projects"][number], value: string) => {
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const projects = [...prev.projects];
-      projects[index] = { ...projects[index], [field]: value };
-      return { ...prev, projects };
-    });
+  /* -------------------- Projects -------------------- */
+
+  const handleAddProject = () => {
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            projects: [
+              ...prev.projects,
+              { title: "", description: "", tech: [], link: null },
+            ],
+          }
+        : prev
+    );
+  };
+
+  const handleProjectChange = (
+    index: number,
+    field: keyof Portfolio["projects"][number],
+    value: string
+  ) => {
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            projects: prev.projects.map((p, i) =>
+              i === index
+                ? {
+                    ...p,
+                    [field]:
+                      field === "link" ? value || null : value,
+                  }
+                : p
+            ),
+          }
+        : prev
+    );
   };
 
   const handleProjectTechChange = (index: number, value: string) => {
-    const techArray = value.split(",").map((t) => t.trim()).filter(Boolean);
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const projects = [...prev.projects];
-      projects[index] = { ...projects[index], tech: techArray };
-      return { ...prev, projects };
-    });
+    const techArray = value
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            projects: prev.projects.map((p, i) =>
+              i === index ? { ...p, tech: techArray } : p
+            ),
+          }
+        : prev
+    );
   };
 
   const handleRemoveProject = (index: number) => {
-    setFormData((prev) => {
-      if (!prev) return prev;
-      const projects = [...prev.projects];
-      projects.splice(index, 1);
-      return { ...prev, projects };
-    });
+    setFormData((prev) =>
+      prev
+        ? {
+            ...prev,
+            projects: prev.projects.filter((_, i) => i !== index),
+          }
+        : prev
+    );
   };
 
-  // Social Links handlers
-  const handleSocialLinkChange = (platform: keyof ParsedData["socialLinks"], value: string) => {
+  /* -------------------- Social -------------------- */
+
+  const handleSocialLinkChange = (
+    platform: keyof Portfolio["socialLinks"],
+    value: string
+  ) => {
     setFormData((prev) =>
-      prev ? {
-        ...prev,
-        socialLinks: { ...prev.socialLinks, [platform]: value || null },
-      } : prev
+      prev
+        ? {
+            ...prev,
+            socialLinks: {
+              ...prev.socialLinks,
+              [platform]: value || null,
+            },
+          }
+        : prev
     );
   };
 

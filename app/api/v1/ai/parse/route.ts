@@ -1,13 +1,62 @@
 export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  GoogleGenerativeAI,
+  GenerateContentResult,
+} from "@google/generative-ai";
 import UserModel from "@/models/user.model";
 import PortfolioModel from "@/models/portfolio.model";
 import { dbConnect } from "@/lib/db";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 import { Buffer } from "buffer";
+
+/* ---------------------------------- TYPES --------------------------------- */
+
+type AIError = {
+  message?: string;
+  name?: string;
+  status?: number;
+};
+
+type ParsedResume = {
+  name: string;
+  title: string | null;
+  email: string | null;
+  about: string;
+  status: string | null;
+
+  socialLinks: {
+    github: string | null;
+    linkedin: string | null;
+    twitter: string | null;
+  };
+
+  experience: {
+    role: string;
+    company: string;
+    duration: string;
+    description: string;
+  }[];
+
+  projects: {
+    title: string;
+    description: string;
+    tech: string[];
+    link: string | null;
+  }[];
+
+  education: {
+    degree: string;
+    school: string;
+    year: string;
+  }[];
+
+  skills: string[];
+};
+
+/* -------------------------------------------------------------------------- */
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -16,10 +65,10 @@ export async function POST(req: NextRequest) {
     await dbConnect();
 
     const formData = await req.formData();
-    const file = formData.get("resume") as File | null;
-    const currentUser = formData.get("currentUser") as string | null;
+    const file = formData.get("resume");
+    const currentUser = formData.get("currentUser");
 
-    if (!file) {
+    if (!(file instanceof File)) {
       return NextResponse.json(
         { error: "Resume file is required" },
         { status: 400 }
@@ -86,7 +135,8 @@ Notes for extraction:
 - If multiple emails or links appear, choose the most professional.
 `;
 
-    let result: any;
+    let result: GenerateContentResult;
+
     try {
       result = await model.generateContent([
         { text: prompt },
@@ -97,45 +147,56 @@ Notes for extraction:
           },
         },
       ]);
-    } catch (aiError: any) {
-      console.error("AI generation failed:", aiError);
+    } catch (error: unknown) {
+      const err = error as AIError;
+
+      console.error("AI generation failed:", err);
       return NextResponse.json(
         {
           error: "AI generation failed",
-          details: aiError?.message || String(aiError),
-          name: aiError?.name,
-          status: aiError?.status,
+          details: err?.message || String(err),
+          name: err?.name,
+          status: err?.status,
         },
         { status: 500 }
       );
     }
 
     let text = "";
+
     try {
-      if (result?.response && typeof result.response.text === "function") {
+      if (
+        result.response &&
+        typeof result.response.text === "function"
+      ) {
         text = result.response.text();
       } else {
         text = JSON.stringify(result);
       }
-    } catch (err) {
-      console.error("Error reading Gemini response:", err);
+    } catch (error) {
+      console.error("Error reading Gemini response:", error);
       text = String(result);
     }
 
-    const cleaned = String(text).replace(/```json|```/g, "").trim();
+    const cleaned = text.replace(/```json|```/g, "").trim();
 
-    let parsedJson: any;
+    let parsedJson: ParsedResume;
+
     try {
-      parsedJson = JSON.parse(cleaned);
-    } catch (parseErr) {
-      console.error("Failed to parse AI response as JSON", parseErr, cleaned);
+      parsedJson = JSON.parse(cleaned) as ParsedResume;
+    } catch (error) {
+      console.error("Failed to parse AI response as JSON", error, cleaned);
       return NextResponse.json(
-        { error: "Failed to parse AI response as JSON", raw: cleaned, rawFull: text },
+        {
+          error: "Failed to parse AI response as JSON",
+          raw: cleaned,
+          rawFull: text,
+        },
         { status: 500 }
       );
     }
 
-    if (currentUser) {
+    if (typeof currentUser === "string") {
       const user = await UserModel.findOne({ email: currentUser });
 
       if (!user) {
@@ -178,10 +239,12 @@ Notes for extraction:
       { message: "Parsed (preview)", portfolio: parsedJson },
       { status: 200 }
     );
-  } catch (error: any) {
-    console.error("Unhandled error in resume route:", error);
+  } catch (error: unknown) {
+    const err = error as Error;
+
+    console.error("Unhandled error in resume route:", err);
     return NextResponse.json(
-      { error: error?.message || "Internal server error" },
+      { error: err.message || "Internal server error" },
       { status: 500 }
     );
   }

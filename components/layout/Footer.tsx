@@ -9,11 +9,11 @@ export default function Footer() {
   const [showScrollTop, setShowScrollTop] = useState(true);
 
   const socialLinks = [
-    { icon: Github, label: 'GitHub', href: '#' },
-    { icon: Linkedin, label: 'LinkedIn', href: '#' },
-    { icon: Twitter, label: 'Twitter', href: '#' },
-    { icon: Instagram, label: 'Instagram', href: '#' },
-    { icon: Mail, label: 'Email', href: '#' }
+    { icon: Github, label: 'GitHub', href: 'https://github.com/Sujal-Raj/portfilio-generator' },
+    { icon: Linkedin, label: 'LinkedIn', href: 'https://www.linkedin.com/in/sujalraj1/' },
+    // { icon: Twitter, label: 'Twitter', href: '#' },
+    // { icon: Instagram, label: 'Instagram', href: '#' },
+    { icon: Mail, label: 'Email', href: 'mailto:developersujal4@gmail.com' }
   ];
 
   const scrollToTop = () => {

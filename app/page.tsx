@@ -1,4 +1,4 @@
-import { dbConnect } from "@/lib/db";
+// import { dbConnect } from "@/lib/db";
 import Navbar from "@/components/layout/Navbar";
 import HomePage from "@/components/layout/HomePage";
 import HowItWorksPage from "@/components/layout/HowItWorks";

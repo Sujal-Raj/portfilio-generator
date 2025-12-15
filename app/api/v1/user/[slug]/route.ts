@@ -36,10 +36,12 @@ export async function GET(
       { status: 200 }
     );
 
-  } catch (error: any) {
-    console.error("❌ Error fetching portfolio:", error);
+  } catch (error: unknown) {
+    const err = error as Error;
 
-    if (error.name === "MongoNetworkError") {
+    console.error("❌ Error fetching portfolio:", err);
+
+    if (err.name === "MongoNetworkError") {
       return NextResponse.json(
         { success: false, message: "Database connection error" },
         { status: 503 }
@@ -50,7 +52,7 @@ export async function GET(
       {
         success: false,
         message: "Internal server error",
-        error: error?.message || "Unknown error",
+        error: err?.message || "Unknown error",
       },
       { status: 500 }
     );

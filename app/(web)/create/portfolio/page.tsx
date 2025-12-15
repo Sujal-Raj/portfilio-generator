@@ -321,12 +321,23 @@ const handleManualPreview = () => {
 
   // ================== Generic Field Handlers ==================
 
-  const handleInputChange = (field: keyof ParsedData, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  // const handleInputChange = (field: keyof ParsedData, value: any) => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [field]: value,
+  //   }));
+  // };
+
+  const handleInputChange = <K extends keyof ParsedData>(
+  field: K,
+  value: ParsedData[K]
+) => {
+  setFormData((prev) => ({
+    ...prev,
+    [field]: value,
+  }));
+};
+
 
   // ---- Skills ----
   const handleSkillChange = (index: number, value: string) => {

@@ -4,38 +4,86 @@ import { useEffect, useState } from "react";
 import { Briefcase, GraduationCap, Code2, Mail, Github, Linkedin, ExternalLink, ArrowUpRight, Sparkles, Calendar, Award } from "lucide-react";
 import { useParams } from "next/navigation";
 
+
+interface SocialLinks {
+  github?: string;
+  linkedin?: string;
+}
+
+interface Experience {
+  role: string;
+  company: string;
+  duration: string;
+  description: string;
+}
+
+interface Project {
+  title: string;
+  description: string;
+  link?: string;
+  tech?: string[];
+}
+
+interface Education {
+  degree: string;
+  school: string;
+  year: string;
+}
+
+interface Portfolio {
+  name: string;
+  title?: string;
+  about?: string;
+  status?: string;
+  email?: string;
+  userEmail?: string;
+  socialLinks?: SocialLinks;
+  experience?: Experience[];
+  projects?: Project[];
+  education?: Education[];
+  skills?: string[];
+}
+
 export default function PortfolioPage() {
   // const { slug } = params;
    const { slug } = useParams<{ slug: string }>();
 
-  const [portfolio, setPortfolio] = useState<any>(null);
+  const [portfolio, setPortfolio] = useState<Portfolio | null >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // Fetch portfolio by slug
+  useEffect(() => {
   const getPortfolio = async () => {
     try {
       const res = await fetch(`/api/v1/user/${slug}`, {
         method: "GET",
         cache: "no-store",
       });
+
       const data = await res.json();
+
       if (!res.ok) {
         throw new Error(data.message || "Failed to fetch portfolio");
       }
+
       setPortfolio(data.data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to load portfolio");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    getPortfolio();
-  }, [slug]);
+  getPortfolio();
+}, [slug]);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -105,7 +153,7 @@ export default function PortfolioPage() {
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-900' : ''}`}>
         <nav className="max-w-6xl mx-auto px-6 lg:px-8 py-5 flex justify-between items-center">
           <div className="font-bold text-lg tracking-tight transition-all duration-300 hover:opacity-60">
-            {portfolio.name}
+            {portfolio?.name}
             {/* {portfolio?.name?.split(' ').map((word: string, i: number) => i === 0 ? word : word[0]).join('')} */}
           </div>
           <div className="flex items-center gap-3">
@@ -175,7 +223,7 @@ export default function PortfolioPage() {
             </div>
             
             <div className="space-y-6">
-              {portfolio.experience.map((exp: any, i: number) => (
+              {portfolio.experience.map((exp: Experience, i: number) => (
                 <div key={i} 
                   className="group relative p-8 rounded-xl bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-500 hover:shadow-xl hover:shadow-gray-100 dark:hover:shadow-gray-900/50 animate-fade-in-up"
                   style={{ animationDelay: `${i * 100}ms` }}>
@@ -214,7 +262,7 @@ export default function PortfolioPage() {
             </div>
             
             <div className="grid gap-6 md:grid-cols-2">
-              {portfolio.projects.map((proj: any, i: number) => (
+              {portfolio.projects.map((proj: Project, i: number) => (
                 <div key={i}
                   onClick={() => proj.link && window.open(proj.link, '_blank')}
                   className="group relative p-8 rounded-xl bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-500 hover:shadow-xl hover:shadow-gray-100 dark:hover:shadow-gray-900/50 cursor-pointer animate-fade-in-up"
@@ -259,7 +307,7 @@ export default function PortfolioPage() {
             </div>
             
             <div className="grid gap-6 md:grid-cols-2">
-              {portfolio.education.map((edu: any, i: number) => (
+              {portfolio.education.map((edu: Education, i: number) => (
                 <div key={i}
                   className="group p-8 rounded-xl bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-all duration-500 hover:shadow-xl hover:shadow-gray-100 dark:hover:shadow-gray-900/50 animate-fade-in-up"
                   style={{ animationDelay: `${i * 100}ms` }}>

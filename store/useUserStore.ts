@@ -1,22 +1,14 @@
+// src/store/useUserStore.ts
 import { create } from "zustand";
-import axios from "axios";
 
-const useAuthStore = create((set) => ({
-  user: null,
-  loading: false,
-  error: null,
+interface AuthState {
+  registerUser: (email: string) => void;
+}
 
-  registerUser: async (email:string) => {
-    set({ loading: true, error: null });
-    try {
-      const response = await axios.post("/api/v1/auth/register", { email });
-      set({ user: response.data, loading: false });
-      console.log(response.data)
-    } catch (err) {
-        //@ts-ignore
-      set({ error: err.message, loading: false });
-      console.error("Registration failed:", err);
-    }
+const useAuthStore = create<AuthState>(() => ({
+  registerUser: (email: string) => {
+    // Example logic (replace with your API call if needed)
+    console.log("Registering user:", email);
   },
 }));
 
