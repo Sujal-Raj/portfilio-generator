@@ -1,4 +1,4 @@
-# Portfolio Generator
+# Profilix
 
 A Next.js application that lets users register, upload a resume (PDF), parse it using Google Gemini AI, and generate a polished portfolio. User data and portfolios are persisted in MongoDB.
 

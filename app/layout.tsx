@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio Generator",
-   description: "Create stunning, ATS-friendly portfolios and resumes instantly. Showcase your skills with customizable templates for developers, designers, and professionals. Start building your dream career today!",
-  keywords: ["portfolio generator", "resume builder", "ATS friendly resume", "developer portfolio", "professional portfolio", "AI portfolio creator"],
+  title: "Profilix - Turn your resume into portfolio | Portfolio Generator",
+   description: "A website that converts your resume into a portfolio website.Create stunning, ATS-friendly portfolios and resumes instantly. Showcase your skills with customizable templates for developers, designers, and professionals. Start building your dream career today!",
+  keywords: ["portfolio generator","Profilix", "resume builder", "ATS friendly resume", "developer portfolio", "professional portfolio", "AI portfolio creator"],
   authors: [{ name: "Sujal Raj" }],
 };
 

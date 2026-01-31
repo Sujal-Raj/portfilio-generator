@@ -1,4 +1,4 @@
-# Contributing to Portfolio Generator
+# Contributing to Profilix
 
 Thanks for your interest in contributing! We welcome bug reports, improvements, and new features.
 

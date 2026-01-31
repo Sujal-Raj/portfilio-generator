@@ -80,7 +80,7 @@ export default function Footer() {
           {/* Copyright */}
           <div className="text-center md:text-left">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              © 2024 Portfolio. All rights reserved.
+              © 2024 Profilix. All rights reserved.
             </p>
           </div>
 
@@ -93,7 +93,7 @@ export default function Footer() {
             >
               <ArrowUp 
                 size={20} 
-                className="text-gray-600 dark:text-gray-400 group-hover:text-white dark:group-hover:text-black transition-colors duration-300 group-hover:-translate-y-1 transform transition-transform" 
+                className="text-gray-600 dark:text-gray-400 group-hover:text-white dark:group-hover:text-black duration-300 group-hover:-translate-y-1 transform transition-transform" 
               />
             </button>
           )}
@@ -123,8 +123,8 @@ export default function Footer() {
       {/* Gradient overlay */}
       <div className="absolute inset-0 z-10 pointer-events-none" />
       
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-[6rem] xl:text-[8rem] 2xl:text-[10rem] text-center tracking-tighter text-gray-900 dark:text-gray-100 opacity-5 dark:opacity-10 select-none pointer-events-none whitespace-nowrap font-semibold">
-        PORTFOLIO
+      <h2 className="uppercase text-2xl sm:text-3xl md:text-4xl lg:text-[6rem] xl:text-[8rem] 2xl:text-[10rem] text-center tracking-tighter text-gray-900 dark:text-gray-100 opacity-5 dark:opacity-10 select-none pointer-events-none whitespace-nowrap font-semibold">
+        Profilix
       </h2>
     </div>
     </section>
