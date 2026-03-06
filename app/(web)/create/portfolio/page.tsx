@@ -1389,7 +1389,7 @@ export default function CreatePortfolioPage() {
 
   // ── Manual placeholder ──
   const handleManualPreview = () => {
-    const defaultData: any = {
+    const defaultData: PortfolioData & { userEmail: string; slug: string } = {
       userEmail: currentUser ?? "johndoe@gmail.com",
       slug: "john-doe",
       name: "John Doe",

@@ -5,6 +5,7 @@ import { Upload, Sparkles, ArrowRight, Briefcase, GraduationCap, Code2, User, Ex
 import { useUser } from "@clerk/clerk-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/ToastContext";
+import Link from "next/link";
 
 interface PortfolioData {
   name: string;
@@ -392,7 +393,8 @@ export function PortfolioDashboard({ data, onPreview }: { data: PortfolioData; o
 
     {/* Socials */}
     <div className="flex gap-4 mt-3 md:mt-0">
-      <a href="/" className="hover:text-gray-200">Home</a>
+      <Link href={"/"} className="hover:text-gray-200">Home</Link>
+      {/* <a href="/" className="hover:text-gray-200">Home</a> */}
       <a href="https://github.com/Sujal-Raj/Profilix" target="_blank" className="hover:text-gray-200">GitHub</a>
       {/* <a href="#" className="hover:text-gray-200">Twitter</a> */}
       <a href="https://www.linkedin.com/in/sujalraj1/" target="_blank" className="hover:text-gray-200">LinkedIn</a>
