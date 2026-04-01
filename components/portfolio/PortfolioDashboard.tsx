@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Upload, Sparkles, ArrowRight, Briefcase, GraduationCap, Code2, User, ExternalLink, Github, Linkedin, Twitter, CheckCircle2 } from "lucide-react";
+import { Upload, Sparkles, ArrowRight, Briefcase, GraduationCap, Code2, User, ExternalLink, Github, Linkedin, Twitter, CheckCircle2, Save, Check, Copy } from "lucide-react";
 import { useUser } from "@clerk/clerk-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/ToastContext";
@@ -121,7 +121,14 @@ function SectionBlock({
 // Dashboard Component
 // ──────────────────────────────────────────
 export function PortfolioDashboard({ data, onPreview }: { data: PortfolioData; onPreview: () => void }) {
+  const router = useRouter();
   const [headerVisible, setHeaderVisible] = useState(false);
+
+  // ── Publish state ──
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [publishedSlug, setPublishedSlug] = useState<string>("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setHeaderVisible(true), 50);
@@ -131,6 +138,51 @@ export function PortfolioDashboard({ data, onPreview }: { data: PortfolioData; o
   const initials = data.name
     ? data.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
     : "?";
+
+  // ── Publish handler ──
+  const handlePublish = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch("/api/v1/user/portfolio/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const resData = await res.json();
+
+      if (!res.ok) {
+        alert(resData.message || "Something went wrong");
+        return;
+      }
+
+      setPublishedSlug(resData.slug);
+      setShowSuccessModal(true);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to publish portfolio");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // ── Copy URL handler ──
+  const handleCopy = async () => {
+    const portfolioUrl = `${window.location.origin}/${publishedSlug}`;
+    try {
+      await navigator.clipboard.writeText(portfolioUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  // ── Modal OK handler ──
+  const handleModalOk = () => {
+    setShowSuccessModal(false);
+    router.push(`/${publishedSlug}`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8">
@@ -160,12 +212,6 @@ export function PortfolioDashboard({ data, onPreview }: { data: PortfolioData; o
 
           {/* Status pill + CTA */}
           <div className="flex items-center gap-3 flex-wrap">
-            {/* {data.status && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                <CheckCircle2 className="w-3 h-3" />
-                {data.status}
-              </span>
-            )} */}
             <button
               onClick={onPreview}
               className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 hover:gap-3"
@@ -173,13 +219,21 @@ export function PortfolioDashboard({ data, onPreview }: { data: PortfolioData; o
               Edit Portfolio
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </button>
+            <button
+              onClick={handlePublish}
+              disabled={isSaving}
+              className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-black dark:bg-white text-white dark:text-black text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 hover:gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <Save size={14} className="flex-shrink-0" />
+              {isSaving ? "Publishing..." : "Publish Portfolio"}
+            </button>
           </div>
         </div>
 
         <div>
-          <p className="mt-2 text-sm text-gray-900 dark:text-white  font-semibold">
-          Your portfolio is already set up and live. You can preview it or edit any section. Publish your changes to update the portfolio.
-        </p>
+          <p className="mt-2 text-sm text-gray-900 dark:text-white font-semibold">
+            Your portfolio is already set up and live. You can preview it or edit any section. Publish your changes to update the portfolio.
+          </p>
         </div>
 
         {/* ── Stats Row ── */}
@@ -369,67 +423,117 @@ export function PortfolioDashboard({ data, onPreview }: { data: PortfolioData; o
           </div>
         </div>
 
-        {/* ── Bottom CTA ── */}
+        {/* ── Footer ── */}
         <footer className="mt-10 text-sm text-gray-400">
-  <hr />
-
-  <div className="flex flex-col md:flex-row justify-between items-center px-4 py-4">
-
-    {/* Brand */}
-    <div>
-      <p className="font-medium text-gray-100">Profilix</p>
-      <p className="font-extralight text-gray-500">
-        Build, customize, and showcase your portfolio effortlessly.
-      </p>
-    </div>
-
-    {/* Links */}
-    {/* <div className="flex gap-6 mt-3 md:mt-0">
-      <a href="#" className="hover:text-gray-200">Home</a>
-      <a href="#" className="hover:text-gray-200">Templates</a>
-      <a href="#" className="hover:text-gray-200">Docs</a>
-      <a href="#" className="hover:text-gray-200">Support</a>
-    </div> */}
-
-    {/* Socials */}
-    <div className="flex gap-4 mt-3 md:mt-0">
-      <Link href={"/"} className="hover:text-gray-200">Home</Link>
-      {/* <a href="/" className="hover:text-gray-200">Home</a> */}
-      <a href="https://github.com/Sujal-Raj/Profilix" target="_blank" className="hover:text-gray-200">GitHub</a>
-      {/* <a href="#" className="hover:text-gray-200">Twitter</a> */}
-      <a href="https://www.linkedin.com/in/sujalraj1/" target="_blank" className="hover:text-gray-200">LinkedIn</a>
-    </div>
-
-  </div>
-
-  {/* Bottom */}
-  <div className="text-center pb-4 text-xs text-gray-500">
-    © {new Date().getFullYear()} Profilix. All rights reserved.
-  </div>
-</footer>
-        {/* <div
-          className={`flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-black p-6 transition-all duration-500 delay-500 ${
-            headerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
-        >
-          <div>
-            <p className="text-sm font-semibold text-black dark:text-white">
-              Your portfolio is ready
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-0.5">
-              Preview it live or edit before publishing
-            </p>
+          <hr />
+          <div className="flex flex-col md:flex-row justify-between items-center px-4 py-4">
+            <div>
+              <p className="font-medium text-gray-100">Profilix</p>
+              <p className="font-extralight text-gray-500">
+                Build, customize, and showcase your portfolio effortlessly.
+              </p>
+            </div>
+            <div className="flex gap-4 mt-3 md:mt-0">
+              <Link href={"/"} className="hover:text-gray-200">Home</Link>
+              <a href="https://github.com/Sujal-Raj/Profilix" target="_blank" className="hover:text-gray-200">GitHub</a>
+              <a href="https://www.linkedin.com/in/sujalraj1/" target="_blank" className="hover:text-gray-200">LinkedIn</a>
+            </div>
           </div>
-          <button
-            onClick={onPreview}
-            className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-black dark:bg-white text-white dark:text-black text-sm font-semibold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 hover:gap-3 flex-shrink-0"
-          >
-            Preview Portfolio
-            <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-          </button>
-        </div> */}
-
+          <div className="text-center pb-4 text-xs text-gray-500">
+            © {new Date().getFullYear()} Profilix. All rights reserved.
+          </div>
+        </footer>
       </div>
+
+      {/* ── Success Modal (identical to PreviewPortfolioPage) ── */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/70 to-black/80 backdrop-blur-md animate-fadeIn"
+            onClick={handleModalOk}
+          />
+
+          {/* Modal */}
+          <div className="relative bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-scaleIn">
+            <div className="p-8">
+              {/* Success icon */}
+              <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-6 animate-bounce-once relative">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500" />
+                <div className="absolute inset-[3px] rounded-full bg-white dark:bg-gray-900" />
+                <Check
+                  className="w-8 h-8 relative z-10 text-black dark:text-white"
+                  strokeWidth={3}
+                />
+              </div>
+
+              {/* Title */}
+              <h2 className="text-2xl font-bold text-center mb-2">
+                <span className="bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                  Portfolio is Live!
+                </span>
+              </h2>
+
+              {/* Description */}
+              <p className="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">
+                Your portfolio has been successfully published
+              </p>
+
+              {/* Link box */}
+              <div className="relative group mb-6">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 rounded-lg opacity-20 group-hover:opacity-30 transition-opacity" />
+                <div className="relative bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mb-2 font-medium">
+                    YOUR PORTFOLIO URL
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 text-sm font-mono text-gray-900 dark:text-white truncate">
+                      {`${typeof window !== "undefined" ? window.location.origin : ""}/${publishedSlug}`}
+                    </code>
+                    <button
+                      onClick={handleCopy}
+                      className="flex-shrink-0 p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-all active:scale-95"
+                      title="Copy to clipboard"
+                    >
+                      {copied ? (
+                        <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* View button */}
+              <button
+                onClick={handleModalOk}
+                className="w-full py-3 px-6 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 text-white dark:text-black font-semibold rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all active:scale-95 cursor-pointer"
+              >
+                View Portfolio
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes bounceOnce {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
+        .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
+        .animate-bounce-once { animation: bounceOnce 0.6s ease-in-out; }
+      `}</style>
     </div>
   );
 }
