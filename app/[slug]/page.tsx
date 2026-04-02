@@ -203,7 +203,7 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     if (portfolio?.name) {
-      document.title = `${portfolio.name} — Portfolio`;
+      document.title = `${portfolio.name} | Digital Portfolio`;
     }
   }, [portfolio]);
 
